@@ -8,25 +8,23 @@
         body, html {
             margin: 0; padding: 0;
             height: 100%; overflow: hidden;
-            background-color: #121212;
+            background-color: #1a1a1a; /* Bakgrundsfärg som syns bakom kartan */
             user-select: none;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: sans-serif;
         }
 
-        /* Behållaren för kartan */
+        /* 1. KARTAN (Underst) */
         #viewport {
             width: 100vw;
             height: 100vh;
-            position: relative;
+            position: absolute;
+            top: 0; left: 0;
             cursor: grab;
             overflow: hidden;
-            background-image: radial-gradient(#222 1px, transparent 1px); /* Subtilt rutmönster */
-            background-size: 20px 20px;
+            z-index: 1; /* Lägsta lagret */
         }
-
         #viewport:active { cursor: grabbing; }
 
-        /* Själva Kartbilden */
         #map {
             position: absolute;
             transform-origin: 0 0;
@@ -34,65 +32,41 @@
             display: block;
         }
 
-        /* Nytt UI-lager: Sidopanel */
-        #ui-panel {
+        /* 2. HUD / INDEX-RAM (Mitten) */
+        #hud-overlay {
             position: fixed;
             top: 0;
-            right: 0;
-            width: 320px; /* Bredden på ditt index-lager */
+            left: 0;
+            width: 100vw;
             height: 100vh;
-            background: rgba(20, 20, 20, 0.95);
-            border-left: 3px solid #daa520;
-            box-shadow: -10px 0 30px rgba(0,0,0,0.7);
-            z-index: 1000;
-            display: flex;
-            flex-direction: column;
-            pointer-events: auto; /* Man kan klicka på panelen */
+            z-index: 10; /* Ovanpå kartan */
+            
+            /* Här läggs din bild in som täcker hela skärmen */
+            background-image: url('CardforestMapIndex.png');
+            background-size: contain; /* Anpassar bilden så hela syns */
+            background-repeat: no-repeat;
+            background-position: center;
+            
+            /* GÖR ATT MAN KAN KLICKA IGENOM RAMEN TILL KARTAN */
+            pointer-events: none; 
         }
 
-        .index-header {
-            color: #daa520;
-            font-size: 18px;
-            text-align: center;
-            padding: 20px 10px;
-            background: #1a1a1a;
-            border-bottom: 1px solid #444;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            font-weight: bold;
-        }
-
-        .index-content {
-            flex-grow: 1;
-            overflow-y: auto; /* Om index-bilden är väldigt lång kan man scrolla i panelen */
-            padding: 10px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-
-        #index-img {
-            width: 100%;
-            height: auto;
-            border: 1px solid #333;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.5);
-        }
-
-        /* Zoom-knappar placerade utanför panelen (till vänster om den) */
-        .controls {
-            position: absolute;
-            left: -60px;
-            top: 20px;
+        /* 3. KONTROLLER (Överst) */
+        #controls {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 20; /* Alltid överst */
             display: flex;
             flex-direction: column;
             gap: 8px;
-            pointer-events: auto;
+            pointer-events: auto; /* Gör knapparna klickbara */
         }
 
         .btn {
             width: 45px;
             height: 45px;
-            background: #1a1a1a;
+            background: rgba(26, 26, 26, 0.9);
             color: #daa520;
             border: 2px solid #daa520;
             border-radius: 8px;
@@ -107,52 +81,31 @@
         }
 
         .btn:hover { background: #daa520; color: #111; }
-        .btn:active { transform: scale(0.9); }
-
-        .info-text {
-            color: #888;
-            font-size: 12px;
-            padding: 15px;
-            text-align: center;
-            line-height: 1.4;
-        }
     </style>
 </head>
 <body>
 
-    <!-- UI Panel (Top Layer) -->
-    <div id="ui-panel">
-        <div class="controls">
-            <button class="btn" onclick="zoom(0.2)" title="Zooma in">+</button>
-            <button class="btn" onclick="zoom(-0.2)" title="Zooma ut">−</button>
-            <button class="btn" onclick="resetMap()" title="Återställ vy">🏠</button>
-        </div>
-
-        <div class="index-header">Kart-Index</div>
-        
-        <div class="index-content">
-            <!-- Din index-bild här -->
-            <img id="index-img" src="CardforestMapIndex.png" alt="Index">
-            
-            <div class="info-text">
-                Dra för att panorera<br>
-                Scrolla för att zooma
-            </div>
-        </div>
-    </div>
-
-    <!-- Kart-området -->
+    <!-- Kartan som man kan flytta på -->
     <div id="viewport">
         <img id="map" src="BestMapYet.jpg" alt="Spelkarta">
+    </div>
+
+    <!-- Din ram med alla boxar (Ska ha genomskinlig mitt) -->
+    <div id="hud-overlay"></div>
+
+    <!-- Knappar för zoom -->
+    <div id="controls">
+        <button class="btn" onclick="zoom(0.2)" title="Zooma in">+</button>
+        <button class="btn" onclick="zoom(-0.2)" title="Zooma ut">−</button>
+        <button class="btn" onclick="resetMap()" title="Återställ vy">🏠</button>
     </div>
 
     <script>
         const viewport = document.getElementById('viewport');
         const map = document.getElementById('map');
-        const uiPanel = document.getElementById('ui-panel');
 
         let scale = 1;
-        let pos = { x: 50, y: 50 };
+        let pos = { x: 100, y: 100 };
         let isDragging = false;
         let start = { x: 0, y: 0 };
 
@@ -164,8 +117,8 @@
             const oldScale = scale;
             scale = Math.min(Math.max(0.1, scale + delta), 5);
             
-            // Zoomar mot mitten av den synliga kartytan (vänster om panelen)
-            const centerX = (window.innerWidth - 320) / 2;
+            // Zoomar mot mitten av skärmen
+            const centerX = window.innerWidth / 2;
             const centerY = window.innerHeight / 2;
             
             pos.x = centerX - (centerX - pos.x) * (scale / oldScale);
@@ -175,21 +128,20 @@
         }
 
         function resetMap() {
-            scale = 0.8; // Lite utzoomat för att se mer direkt
-            pos = { x: 50, y: 50 };
+            scale = 1;
+            pos = { x: 100, y: 100 };
             update();
         }
 
+        // Scroll-zoom
         viewport.onwheel = (e) => {
             e.preventDefault();
             const delta = -Math.sign(e.deltaY) * 0.2;
             zoom(delta);
         };
 
+        // Drag-logik
         viewport.onmousedown = (e) => {
-            // Hindra drag om man klickar på panelen eller dess knappar
-            if (uiPanel.contains(e.target)) return;
-            
             isDragging = true;
             start = { x: e.clientX - pos.x, y: e.clientY - pos.y };
         };
@@ -203,7 +155,7 @@
 
         window.onmouseup = () => isDragging = false;
 
-        // Initiera kartan
+        // Starta kartan
         update();
     </script>
 
