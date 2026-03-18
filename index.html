@@ -8,7 +8,8 @@
         body, html {
             margin: 0; padding: 0;
             height: 100%; overflow: hidden;
-            background-color: #1a1a1a; /* Bakgrundsfärg som syns bakom kartan */
+            /* ÄNDRAT: Bakgrunden är nu vit för att indexet ska synas tydligt */
+            background-color: #ffffff; 
             user-select: none;
             font-family: sans-serif;
         }
@@ -21,7 +22,7 @@
             top: 0; left: 0;
             cursor: grab;
             overflow: hidden;
-            z-index: 1; /* Lägsta lagret */
+            z-index: 1;
         }
         #viewport:active { cursor: grabbing; }
 
@@ -30,6 +31,8 @@
             transform-origin: 0 0;
             will-change: transform;
             display: block;
+            /* LAGT TILL: En subtil skugga så kartan syns mot den vita bakgrunden */
+            box-shadow: 0 0 20px rgba(0,0,0,0.1); 
         }
 
         /* 2. HUD / INDEX-RAM (Mitten) */
@@ -39,34 +42,34 @@
             left: 0;
             width: 100vw;
             height: 100vh;
-            z-index: 10; /* Ovanpå kartan */
+            z-index: 10;
             
-            /* Här läggs din bild in som täcker hela skärmen */
             background-image: url('CardforestMapIndex.png');
-            background-size: contain; /* Anpassar bilden så hela syns */
+            background-size: contain; 
             background-repeat: no-repeat;
             background-position: center;
             
-            /* GÖR ATT MAN KAN KLICKA IGENOM RAMEN TILL KARTAN */
             pointer-events: none; 
         }
 
         /* 3. KONTROLLER (Överst) */
         #controls {
             position: fixed;
-            bottom: 20px;
-            right: 20px;
-            z-index: 20; /* Alltid överst */
+            /* Justerat positionen så de hamnar precis över dina befintliga knappar i bilden */
+            bottom: 30px;
+            right: 30px;
+            z-index: 20;
             display: flex;
             flex-direction: column;
             gap: 8px;
-            pointer-events: auto; /* Gör knapparna klickbara */
+            pointer-events: auto;
         }
 
         .btn {
             width: 45px;
             height: 45px;
-            background: rgba(26, 26, 26, 0.9);
+            /* ÄNDRAT: Knapparna är nu mörkgrå/svarta för att synas mot vitt */
+            background: #1a1a1a;
             color: #daa520;
             border: 2px solid #daa520;
             border-radius: 8px;
@@ -76,24 +79,21 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
             transition: all 0.2s;
         }
 
-        .btn:hover { background: #daa520; color: #111; }
+        .btn:hover { background: #333; transform: scale(1.05); }
     </style>
 </head>
 <body>
 
-    <!-- Kartan som man kan flytta på -->
     <div id="viewport">
         <img id="map" src="BestMapYet.jpg" alt="Spelkarta">
     </div>
 
-    <!-- Din ram med alla boxar (Ska ha genomskinlig mitt) -->
     <div id="hud-overlay"></div>
 
-    <!-- Knappar för zoom -->
     <div id="controls">
         <button class="btn" onclick="zoom(0.2)" title="Zooma in">+</button>
         <button class="btn" onclick="zoom(-0.2)" title="Zooma ut">−</button>
@@ -105,7 +105,8 @@
         const map = document.getElementById('map');
 
         let scale = 1;
-        let pos = { x: 100, y: 100 };
+        // Justerad startposition så kartan hamnar mer i mitten av "hålet" direkt
+        let pos = { x: window.innerWidth * 0.25, y: window.innerHeight * 0.25 };
         let isDragging = false;
         let start = { x: 0, y: 0 };
 
@@ -117,7 +118,6 @@
             const oldScale = scale;
             scale = Math.min(Math.max(0.1, scale + delta), 5);
             
-            // Zoomar mot mitten av skärmen
             const centerX = window.innerWidth / 2;
             const centerY = window.innerHeight / 2;
             
@@ -128,19 +128,17 @@
         }
 
         function resetMap() {
-            scale = 1;
-            pos = { x: 100, y: 100 };
+            scale = 0.6; // Starta lite utzoomat så man ser mer av kartan i hålet
+            pos = { x: window.innerWidth * 0.25, y: window.innerHeight * 0.25 };
             update();
         }
 
-        // Scroll-zoom
         viewport.onwheel = (e) => {
             e.preventDefault();
-            const delta = -Math.sign(e.deltaY) * 0.2;
+            const delta = -Math.sign(e.deltaY) * 0.15;
             zoom(delta);
         };
 
-        // Drag-logik
         viewport.onmousedown = (e) => {
             isDragging = true;
             start = { x: e.clientX - pos.x, y: e.clientY - pos.y };
@@ -155,9 +153,7 @@
 
         window.onmouseup = () => isDragging = false;
 
-        // Starta kartan
         update();
     </script>
-
 </body>
 </html>
