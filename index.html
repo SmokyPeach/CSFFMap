@@ -3,17 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gio's Interactive CSFF Map</title>
+    <title>Interaktiv Spelkarta - Slutgiltig Version</title>
     <style>
         body, html {
             margin: 0; padding: 0;
             height: 100%; overflow: hidden;
-            background-color: #ffffff; /* Vit bakgrund för index-boxar */
+            background-color: #ffffff;
             user-select: none;
             font-family: sans-serif;
         }
 
-        /* 1. VIEWPORT (Hanterar alla klick och drag) */
+        /* 1. VIEWPORT */
         #viewport {
             width: 100vw;
             height: 100vh;
@@ -25,18 +25,16 @@
         }
         #viewport:active { cursor: grabbing; }
 
-        /* 2. KARTAN (Själva bilden) */
         #map {
             position: absolute;
             transform-origin: 0 0;
             will-change: transform;
             display: block;
             box-shadow: 0 0 30px rgba(0,0,0,0.15);
-            /* VIKTIGT: Gör att klick går igenom bilden till viewporten bakom */
             pointer-events: none; 
         }
 
-        /* 3. HUD / INDEX-RAM (Ligger ovanpå allt) */
+        /* 2. HUD / INDEX-RAM */
         #hud-overlay {
             position: fixed;
             top: 0;
@@ -48,11 +46,18 @@
             background-size: contain; 
             background-repeat: no-repeat;
             background-position: center;
-            /* Låter musen gå igenom ramen till kartan */
             pointer-events: none; 
+            /* MJUK ÖVERGÅNG NÄR MAN GÖMMER INDEXET */
+            transition: opacity 0.4s ease; 
+            opacity: 1;
         }
 
-        /* 4. KONTROLLER (Klickbara knappar) */
+        /* Klass för att dölja indexet */
+        .hidden-hud {
+            opacity: 0 !important;
+        }
+
+        /* 3. KONTROLLER */
         #controls {
             position: fixed;
             bottom: 30px;
@@ -83,30 +88,35 @@
 
         .btn:hover { background: #333; transform: scale(1.05); }
         .btn:active { transform: scale(0.95); }
+        
+        /* Highlight för aktiv "göm"-knapp */
+        .btn.active {
+            background: #daa520;
+            color: #1a1a1a;
+        }
     </style>
 </head>
 <body>
 
-    <!-- Kartan och dess behållare -->
     <div id="viewport">
         <img id="map" src="BestMapYet.jpg" alt="Spelkarta" draggable="false">
     </div>
 
-    <!-- Din HUD-ram (Ska ha genomskinlig mitt) -->
     <div id="hud-overlay"></div>
 
-    <!-- Zoom-knappar -->
     <div id="controls">
         <button class="btn" onclick="zoom(0.2)" title="Zooma in">+</button>
         <button class="btn" onclick="zoom(-0.2)" title="Zooma ut">−</button>
+        <button class="btn" onclick="toggleHUD(this)" title="Visa/Dölj Index">👁️</button>
         <button class="btn" onclick="resetMap()" title="Återställ vy">🏠</button>
     </div>
 
     <script>
         const viewport = document.getElementById('viewport');
         const map = document.getElementById('map');
+        const hud = document.getElementById('hud-overlay');
 
-        let scale = 0.7; // Startar lite utzoomat
+        let scale = 0.7;
         let pos = { x: window.innerWidth * 0.15, y: window.innerHeight * 0.15 };
         let isDragging = false;
         let start = { x: 0, y: 0 };
@@ -115,16 +125,19 @@
             map.style.transform = `translate(${pos.x}px, ${pos.y}px) scale(${scale})`;
         }
 
+        // FUNKTION FÖR ATT VISA/DÖLJA INDEX
+        function toggleHUD(button) {
+            hud.classList.toggle('hidden-hud');
+            button.classList.toggle('active');
+        }
+
         function zoom(delta) {
             const oldScale = scale;
             scale = Math.min(Math.max(0.1, scale + delta), 5);
-            
             const centerX = window.innerWidth / 2;
             const centerY = window.innerHeight / 2;
-            
             pos.x = centerX - (centerX - pos.x) * (scale / oldScale);
             pos.y = centerY - (centerY - pos.y) * (scale / oldScale);
-            
             update();
         }
 
@@ -134,14 +147,11 @@
             update();
         }
 
-        // Scrolla för att zooma
         viewport.onwheel = (e) => {
             e.preventDefault();
-            const delta = -Math.sign(e.deltaY) * 0.2;
-            zoom(delta);
+            zoom(-Math.sign(e.deltaY) * 0.2);
         };
 
-        // Klicka och dra
         viewport.onmousedown = (e) => {
             isDragging = true;
             start = { x: e.clientX - pos.x, y: e.clientY - pos.y };
@@ -154,11 +164,8 @@
             update();
         };
 
-        window.onmouseup = () => {
-            isDragging = false;
-        };
+        window.onmouseup = () => isDragging = false;
 
-        // Kör vid start
         update();
     </script>
 </body>
