@@ -47,17 +47,17 @@
             background-repeat: no-repeat;
             background-position: center;
             pointer-events: none; 
-            /* MJUK ÖVERGÅNG NÄR MAN GÖMMER INDEXET */
+            /* SOFT TRANSITION WHEN HIDING INDEX */
             transition: opacity 0.4s ease; 
             opacity: 1;
         }
 
-        /* Klass för att dölja indexet */
+        /* FEATURE FOR HIDING INDEX */
         .hidden-hud {
             opacity: 0 !important;
         }
 
-        /* 3. KONTROLLER */
+        /* 3. CONTROLLER */
         #controls {
             position: fixed;
             bottom: 30px;
@@ -89,7 +89,7 @@
         .btn:hover { background: #333; transform: scale(1.05); }
         .btn:active { transform: scale(0.95); }
         
-        /* Highlight för aktiv "göm"-knapp */
+        /* HIGHLIGHT FOR HIDE BUTTON */
         .btn.active {
             background: #daa520;
             color: #1a1a1a;
@@ -116,8 +116,9 @@
         const map = document.getElementById('map');
         const hud = document.getElementById('hud-overlay');
 
-        let scale = 0.7;
-        let pos = { x: window.innerWidth * 0.15, y: window.innerHeight * 0.15 };
+        // SETTINGS FOR STARTING VIEW
+        let scale = 0.50; 
+        let pos = { x: 0, y: 0 };
         let isDragging = false;
         let start = { x: 0, y: 0 };
 
@@ -125,7 +126,14 @@
             map.style.transform = `translate(${pos.x}px, ${pos.y}px) scale(${scale})`;
         }
 
-        // FUNKTION FÖR ATT VISA/DÖLJA INDEX
+        // AUTOCENTER FUNCTION
+        function centerMap() {
+            pos.x = (window.innerWidth - (map.offsetWidth * scale)) / 2;
+            pos.y = (window.innerHeight - (map.offsetHeight * scale)) / 2;
+            update();
+        }
+
+        // FUNCTION FOR HIDE/SHOW INDEX
         function toggleHUD(button) {
             hud.classList.toggle('hidden-hud');
             button.classList.toggle('active');
@@ -142,9 +150,8 @@
         }
 
         function resetMap() {
-            scale = 0.7;
-            pos = { x: window.innerWidth * 0.15, y: window.innerHeight * 0.15 };
-            update();
+            scale = 0.50;
+            centerMap();
         }
 
         viewport.onwheel = (e) => {
@@ -166,7 +173,16 @@
 
         window.onmouseup = () => isDragging = false;
 
-        update();
+        // CENTRATION ON MAP LOAD FINISH
+        if (map.complete) {
+            centerMap();
+        } else {
+            map.onload = centerMap;
+        }
+
+        // DYNAMIC RESIZE ON BROWSER SCALE
+        window.onresize = centerMap;
+
     </script>
 </body>
 </html>
