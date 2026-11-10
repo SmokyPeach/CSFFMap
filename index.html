@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SmokyPeach's Interactive CSFF Map</title>
+    <title>SmokyPeach's CSFF Map</title>
     <style>
         body, html {
             margin: 0; padding: 0;
@@ -57,6 +57,43 @@
             opacity: 0 !important;
         }
 
+        /* CREDITS PANEL */
+        #credits-panel {
+            position: fixed;
+            right: 92px;
+            bottom: 30px;
+            z-index: 21;
+            width: min(320px, calc(100vw - 115px));
+            box-sizing: border-box;
+            padding: 20px;
+            background: #1a1a1a;
+            color: #f3e9d1;
+            border: 2px solid #daa520;
+            border-radius: 12px;
+            box-shadow: 0 6px 25px rgba(0,0,0,0.45);
+            font-size: 14px;
+            line-height: 1.5;
+            max-height: min(75vh, 680px);
+            display: flex;
+            flex-direction: column;
+        }
+        #credits-panel[hidden] { display: none; }
+        .credits-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; flex-shrink: 0; }
+        #credits-panel h2 { margin: 0 0 12px; color: #daa520; font-size: 19px; }
+        #credits-panel h3 { color: #daa520; font-size: 15px; margin: 0 0 6px; }
+        #credits-panel p { margin: 0 0 14px; }
+        #credits-panel a { color: #f4c65b; }
+        #credits-panel a:hover { color: #fff1b6; }
+        .credits-content { overflow-y: auto; overscroll-behavior: contain; min-height: 0; padding-right: 8px; }
+        .credit-group { padding: 12px 0; border-top: 1px solid #66531e; }
+        .credit-group ul { margin: 0; padding-left: 20px; columns: 2; column-gap: 14px; }
+        .credit-group li { margin: 0 0 5px; break-inside: avoid; }
+        #credits-close { background: transparent; color: #daa520; border: 0; font-size: 24px; cursor: pointer; line-height: 1; }
+        @media (max-width: 480px) {
+            #controls { right: 12px !important; bottom: 12px !important; }
+            #credits-panel { right: 74px; bottom: 12px; }
+        }
+
         /* 3. CONTROLLER */
         #controls {
             position: fixed;
@@ -105,16 +142,128 @@
     <div id="hud-overlay"></div>
 
     <div id="controls">
-        <button class="btn" onclick="zoom(0.2)" title="Zooma in">+</button>
-        <button class="btn" onclick="zoom(-0.2)" title="Zooma ut">−</button>
-        <button class="btn" onclick="toggleHUD(this)" title="Visa/Dölj Index">👁️</button>
-        <button class="btn" onclick="resetMap()" title="Återställ vy">🏠</button>
+        <button class="btn" onclick="zoom(0.2)" title="Zoom in">+</button>
+        <button class="btn" onclick="zoom(-0.2)" title="Zoom out">−</button>
+        <button class="btn" onclick="toggleHUD(this)" title="Show/Hide Index">👁️</button>
+        <button class="btn" onclick="resetMap()" title="Reset/Home">🏠</button>
+        <button class="btn" id="credits-button" onclick="toggleCredits()" title="Credits / Attribution" aria-label="Show credits" aria-controls="credits-panel" aria-expanded="false">ⓘ</button>
     </div>
+
+    <aside id="credits-panel" aria-label="Credits and attribution" hidden>
+        <div class="credits-header"><h2>Credits &amp; Attribution</h2><button id="credits-close" onclick="toggleCredits(false)" aria-label="Close credits">×</button></div>
+        <div class="credits-content">
+            <p>Thank you to the artists whose work appears on this map.</p>
+            <section class="credit-group">
+                <h3>Created by <a href="https://www.magnific.com/author/icongeek26/icons" target="_blank" rel="noopener noreferrer">Icongeek26</a></h3>
+                <ul>
+                    <li><a href="https://www.magnific.com/icon/wolf_4082637" target="_blank" rel="noopener noreferrer">Wolf</a></li>
+                    <li><a href="https://www.magnific.com/icon/frog_4975945" target="_blank" rel="noopener noreferrer">Frog</a></li>
+                    <li><a href="https://www.magnific.com/icon/squirrel_4082634" target="_blank" rel="noopener noreferrer">Squirrel</a></li>
+                    <li><a href="https://www.magnific.com/icon/deer_4081930" target="_blank" rel="noopener noreferrer">Stag</a></li>
+                    <li><a href="https://www.magnific.com/icon/deer_4081952" target="_blank" rel="noopener noreferrer">Doe</a></li>
+                    <li><a href="https://www.magnific.com/icon/bear_4081911" target="_blank" rel="noopener noreferrer">Bear</a></li>
+                    <li><a href="https://www.magnific.com/icon/rabbit_4082624" target="_blank" rel="noopener noreferrer">Hare</a></li>
+                </ul>
+            </section>
+            <section class="credit-group">
+                <h3>Created by <a href="https://www.magnific.com/author/user5923591/icons" target="_blank" rel="noopener noreferrer">Anditii Creative/user5923591</a></h3>
+                <ul>
+                    <li><a href="https://www.magnific.com/icon/fox_17839213" target="_blank" rel="noopener noreferrer">Fox</a></li>
+                    <li><a href="https://www.magnific.com/icon/duck_17839205" target="_blank" rel="noopener noreferrer">Duck</a></li>
+                </ul>
+            </section>
+            <section class="credit-group">
+                <h3>Created by <a href="https://www.magnific.com/author/pop-vectors/icons" target="_blank" rel="noopener noreferrer">Pop Vectors</a></h3>
+                <ul>
+                    <li><a href="https://www.magnific.com/icon/crossbill_892487" target="_blank" rel="noopener noreferrer">Partridge</a></li>
+                </ul>
+            </section>
+            <section class="credit-group">
+                <h3>Created by <a href="https://www.magnific.com/author/naripuru/icons" target="_blank" rel="noopener noreferrer">Park Jisun/naripuru</a></h3>
+                <ul>
+                    <li><a href="https://www.magnific.com/icon/game_15622619" target="_blank" rel="noopener noreferrer">Boar</a></li>
+                </ul>
+            </section>
+            <section class="credit-group">
+                <h3>Created by <a href="https://www.magnific.com/author/delwar100/icons" target="_blank" rel="noopener noreferrer">delwar100</a></h3>
+                <ul>
+                    <li><a href="https://www.magnific.com/icon/mammal_15707582" target="_blank" rel="noopener noreferrer">Badger</a></li>
+                </ul>
+            </section>
+            <section class="credit-group">
+                <h3>Created by <a href="https://www.magnific.com/author/prosymbols/icons" target="_blank" rel="noopener noreferrer">prosymbols</a></h3>
+                <ul>
+                    <li><a href="https://www.magnific.com/icon/mosquito_9861443" target="_blank" rel="noopener noreferrer">Mosquito</a></li>
+                </ul>
+            </section>
+            <section class="credit-group">
+                <h3>Created by <a href="https://www.magnific.com/author/user110970527/icons" target="_blank" rel="noopener noreferrer">Meiliastudio</a></h3>
+                <ul>
+                    <li><a href="https://www.magnific.com/icon/cave_17299491" target="_blank" rel="noopener noreferrer">Cave</a></li>
+                </ul>
+            </section>
+            <section class="credit-group">
+                <h3>Created by <a href="https://www.magnific.com/author/magnific/icons" target="_blank" rel="noopener noreferrer">magnific</a></h3>
+                <ul>
+                    <li><a href="https://www.magnific.com/icon/waterfall_1888381" target="_blank" rel="noopener noreferrer">Waterfall</a></li>
+                    <li><a href="https://www.magnific.com/icon/cones_103195" target="_blank" rel="noopener noreferrer">Pine nuts</a></li>
+                    <li><a href="https://www.magnific.com/icon/acorn_8722387" target="_blank" rel="noopener noreferrer">Acorns</a></li>
+                    <li><a href="https://www.magnific.com/icon/tree-life_11015259" target="_blank" rel="noopener noreferrer">Sacred Oak</a></li>
+                    <li><a href="https://www.magnific.com/icon/spruce_6224184" target="_blank" rel="noopener noreferrer">Wind Pine</a></li>
+                    <li><a href="https://www.magnific.com/icon/water-drop_10873954" target="_blank" rel="noopener noreferrer">Sacred Spring</a></li>
+                    <li><a href="https://www.magnific.com/icon/spruce_4292781" target="_blank" rel="noopener noreferrer">Pine</a></li>
+                    <li><a href="https://www.magnific.com/icon/tree_4292775" target="_blank" rel="noopener noreferrer">Oak</a></li>
+                    <li><a href="https://www.magnific.com/icon/weeping-willow_4292719" target="_blank" rel="noopener noreferrer">Willow</a></li>
+                    <li><a href="https://www.magnific.com/icon/birch_4292771" target="_blank" rel="noopener noreferrer">Birch</a></li>
+                    <li><a href="https://www.magnific.com/icon/tree_4292724" target="_blank" rel="noopener noreferrer">Alder</a></li>
+                    <li><a href="https://www.magnific.com/icon/windsock_3713068" target="_blank" rel="noopener noreferrer">Windy</a></li>
+                </ul>
+            </section>
+            <section class="credit-group">
+                <h3>Created by <a href="https://www.magnific.com/author/yliv/icons" target="_blank" rel="noopener noreferrer">Ylivdesign/yliv</a></h3>
+                <ul>
+                    <li><a href="https://www.magnific.com/icon/fruit_12753892" target="_blank" rel="noopener noreferrer">Springberries</a></li>
+                    <li><a href="https://www.magnific.com/icon/healthy_12791893" target="_blank" rel="noopener noreferrer">Billberries</a></li>
+                </ul>
+            </section>
+            <section class="credit-group">
+                <h3>Created by <a href="https://www.magnific.com/author/justiconstudio/icons" target="_blank" rel="noopener noreferrer">justiconstudio</a></h3>
+                <ul>
+                    <li><a href="https://www.magnific.com/icon/tree_2220060" target="_blank" rel="noopener noreferrer">Sacred Willow</a></li>
+                </ul>
+            </section>
+            <section class="credit-group">
+                <h3>Created by <a href="https://www.magnific.com/author/podenthusiast/icons" target="_blank" rel="noopener noreferrer">podenthusiast</a></h3>
+                <ul>
+                    <li><a href="https://www.magnific.com/icon/moon-phase_18366161" target="_blank" rel="noopener noreferrer">Moon Rock</a></li>
+                </ul>
+            </section>
+            <section class="credit-group">
+                <h3>Created by <a href="https://www.magnific.com/author/itim2101/icons" target="_blank" rel="noopener noreferrer">itim2101</a></h3>
+                <ul>
+                    <li><a href="https://www.magnific.com/icon/compass_1897400" target="_blank" rel="noopener noreferrer">Compass</a></li>
+                </ul>
+            </section>
+        </div>
+    </aside>
 
     <script>
         const viewport = document.getElementById('viewport');
         const map = document.getElementById('map');
         const hud = document.getElementById('hud-overlay');
+
+        function toggleCredits(forceOpen) {
+            const panel = document.getElementById('credits-panel');
+            const button = document.getElementById('credits-button');
+            const open = typeof forceOpen === 'boolean' ? forceOpen : panel.hidden;
+            panel.hidden = !open;
+            button.classList.toggle('active', open);
+            button.setAttribute('aria-expanded', String(open));
+            button.setAttribute('aria-label', open ? 'Hide credits' : 'Show credits');
+        }
+        document.addEventListener('keydown', (event) => {
+            if (event.key === 'Escape') toggleCredits(false);
+        });
 
         // SETTINGS FOR STARTING VIEW
         let scale = 0.50; 
